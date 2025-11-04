@@ -7,6 +7,8 @@ public class Juego{
         String wasdUser = sc.next();
         return wasdUser;
     }
+
+    
    
     public boolean bucleJuego(){
         boolean gameOver = false;
