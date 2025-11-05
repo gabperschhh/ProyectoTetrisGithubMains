@@ -1,6 +1,6 @@
 @echo off
 echo Compilando archivos Java...
-javac Main.java
+javac *.java
 
 if %errorlevel% neq 0 (
     echo Error en la compilación.
