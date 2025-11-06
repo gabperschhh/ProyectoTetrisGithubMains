@@ -174,27 +174,4 @@ public class Juego{
         }
         return false;
     }
-    /*public void rotarDerecha(){
-        int n = forma.length;
-        int[][] rotar = new int [n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++){
-            rotar[j][n - 1 - i] = forma[i][j];
-            }
-        }   
-        forma = rotar;
-    }// por cualquier vara la gira en 90° no sé si tiene que ser menos
-
-      public void rotarIzquierda(){
-      int n = forma.length;
-        int[][] rotar = new int [n][n];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++){
-            rotar[n - 1 - j][i] = forma[i][j];
-            }
-        }   
-        forma = rotar;
-      }
-      //no sé si te sirva
-    */
 }

@@ -104,10 +104,10 @@ public class Tablero {
     if (filaLlena(fila)) {
         eliminarFila(fila);
         bajarFilasDesde(fila);
-        // vuelvo a revisar la MISMA fila, porque ahora tiene contenido nuevo
+        // vuelvo a revisar la misma fila, porque ahora tiene contenido nuevo (por ahora no funciona porq no caen xd)
         puntos = 1 + limpiarLineas(fila);
     } else {
-        // fila no llena, sigo con la de arriba
+        // fila no esta llena, sigo con la de arriba
         puntos = limpiarLineas(fila - 1);
     }
 
