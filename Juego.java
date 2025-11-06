@@ -29,8 +29,23 @@ public class Juego{
     }
     
     public String teclaUsuario(){
-        String wasdUser = sc.next();
+        String wasdUser = null;
+        wasdUser = sc.nextLine();
         return wasdUser;
+    }
+
+    public boolean usuarioToco(String wasdUser){
+        if(wasdUser.equals("a") || wasdUser.equals("s") || wasdUser.equals("d")){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean usuarioRoto(String wasdUser){
+        if(wasdUser.equals("r")){
+            return true;
+        }
+        return false;
     }
 
     public void generarNuevaPieza(){
@@ -45,12 +60,66 @@ public class Juego{
         }
     } 
 
-    public void moverPieza(){
+    /* public void coordenadasBloques(){ //para tests
+        for(Bloque b : piezaActual.generarBloques()){
+            int[] coords = b.getCoords();
+            int xAbs = coords[0];
+            int yAbs = coords[1];
+            System.out.println(xAbs + " " + yAbs);
+        }
+    } */
 
+    public void moverPieza(String wasdUser){
+        switch (wasdUser) {
+            case "a"->{
+                for(Bloque b : piezaActual.getBloques()){
+                    int[] coords = b.getCoords();
+                    int xAbs = coords[0] - 1;
+                    int yAbs = coords[1];
+                    b.setCoords(new int[]{xAbs, yAbs});
+                }
+            }
+            case "d"->{
+                for(Bloque b : piezaActual.getBloques()){
+                    int[] coords = b.getCoords();
+                    int xAbs = coords[0] + 1;
+                    int yAbs = coords[1];
+                    b.setCoords(new int[]{xAbs, yAbs});
+                }
+            }     
+            case "s"->{
+                for(Bloque b : piezaActual.getBloques()){
+                    int[] coords = b.getCoords();
+                    int xAbs = coords[0];
+                    int yAbs = coords[1] + 1;
+                    b.setCoords(new int[]{xAbs, yAbs});
+                }
+            }     
+        }
     }
 
-    public void rotarPieza(){
+    public void rotarPieza(){ //setea el tercer bloque como el eje, le resta el bloque a mover, cambia el signo
+    // de y y luego le suma el eje invertido (y suma con ejeX y x suma con ejeY), luego los pone al orden original
+        for(Bloque b : piezaActual.getBloques()){
+                int[] coordsEje = piezaActual.getBloques()[3].getCoords();
+                int ejeX = coordsEje[0];
+                int ejeY = coordsEje[1];
+                if(b != piezaActual.getBloques()[3]){
+                    int[] coords = b.getCoords();
+                    int xAbs = coords[0];
+                    int yAbs = coords[1];
 
+                    int xxAbs = ejeX - xAbs;
+                    int yyAbs = ejeY - yAbs;
+
+                    int yyyAbs = Math.negateExact(yyAbs);
+
+                    int xFinal = yyyAbs + ejeX;
+                    int yFinal = xxAbs + ejeY;
+
+                    b.setCoords(new int[]{xFinal, yFinal});
+                }
+        }
     }
 
     public void gravedad(){
@@ -83,14 +152,22 @@ public class Juego{
             generarNuevaPieza();
             while(!gameOver){
                 t.imprimir(piezaActual);
+                String wasdUser = teclaUsuario();
+                usuarioToco(wasdUser);
+                if(usuarioToco(wasdUser) == true){
+                    moverPieza(wasdUser);
+                }
+                if(usuarioRoto(wasdUser) == true){
+                    rotarPieza();
+                }
                 gravedad();
-                sc.nextLine();
                 limpiarPantalla();
                 if(tocoSuelo() == true){
                     t.fijarPieza(piezaActual);
                     inicializarPieza();
                     generarNuevaPieza();  
                 }
+                t.limpiarLineas(t.getAlto() - 1);
             }
         } catch(Exception e){
             System.out.println(e.getMessage());
