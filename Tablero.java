@@ -63,6 +63,55 @@ public class Tablero {
             int y = c[1];
 
             celdas[y][x] = 1; 
+        }   
+    }
+
+    public boolean filaLlena(int fila){
+        for(int i = 0; i < ancho; i++){
+            if(celdas[fila][i] == 0){
+                return false;
+            } 
         }
-}
+        return true;
+    }
+
+    public void eliminarFila(int fila){
+        for(int i = 0; i < ancho; i++){
+            celdas[fila][i] = 0;
+        }
+    }
+
+    public void bajarFilasDesde(int fila){
+        for(int f = fila; f > 0; f--){
+            for(int j = 0; j < ancho; j ++){
+                celdas[f][j] = celdas[f - 1][j];
+            }
+        }
+
+        for (int c = 0; c < ancho; c++) {
+        celdas[0][c] = 0;
+        }
+
+    }
+
+    public int limpiarLineas(int fila) {
+    if (fila < 0) {
+        return 0; // caso base, ya no hay filas que revisar
+    }
+
+    int puntos = 0;
+
+    if (filaLlena(fila)) {
+        eliminarFila(fila);
+        bajarFilasDesde(fila);
+        // vuelvo a revisar la MISMA fila, porque ahora tiene contenido nuevo
+        puntos = 1 + limpiarLineas(fila);
+    } else {
+        // fila no llena, sigo con la de arriba
+        puntos = limpiarLineas(fila - 1);
+    }
+
+    return puntos;
+    }
+
 }
