@@ -1,7 +1,7 @@
 import java.util.Scanner;
 public class Juego{
     Scanner sc = new Scanner(System.in);
-    Tablero t = new Tablero(20, 10);
+    Tablero t = new Tablero(20, 10); 
 
     public static void limpiarPantalla() { 
         try {
@@ -24,8 +24,11 @@ public class Juego{
     Pieza p = new Pieza(null, null);
     Bloque b = new Bloque(null, null, 0, 0);
 
+
     public Pieza inicializarPieza(){
-        return piezaActual = new Pieza(p.generarBloques(), p.generarForma());
+        int[][] forma = p.generarForma();
+        Bloque[] bloques = p.generarBloques(forma);
+        return piezaActual = new Pieza(bloques, forma);
     }
     
     public String teclaUsuario(){
@@ -60,39 +63,36 @@ public class Juego{
         }
     } 
 
-    /* public void coordenadasBloques(){ //para tests
-        for(Bloque b : piezaActual.generarBloques()){
-            int[] coords = b.getCoords();
-            int xAbs = coords[0];
-            int yAbs = coords[1];
-            System.out.println(xAbs + " " + yAbs);
-        }
-    } */
-
     public void moverPieza(String wasdUser){
         switch (wasdUser) {
             case "a"->{
-                for(Bloque b : piezaActual.getBloques()){
-                    int[] coords = b.getCoords();
-                    int xAbs = coords[0] - 1;
-                    int yAbs = coords[1];
-                    b.setCoords(new int[]{xAbs, yAbs});
+                if(t.puedeMover(piezaActual, -1, 0) == true){
+                    for(Bloque b : piezaActual.getBloques()){
+                        int[] coords = b.getCoords();
+                        int xAbs = coords[0] - 1;
+                        int yAbs = coords[1];
+                        b.setCoords(new int[]{xAbs, yAbs});
+                    }
                 }
             }
             case "d"->{
-                for(Bloque b : piezaActual.getBloques()){
-                    int[] coords = b.getCoords();
-                    int xAbs = coords[0] + 1;
-                    int yAbs = coords[1];
-                    b.setCoords(new int[]{xAbs, yAbs});
+                if(t.puedeMover(piezaActual, 1, 0) == true){
+                    for(Bloque b : piezaActual.getBloques()){
+                        int[] coords = b.getCoords();
+                        int xAbs = coords[0] + 1;
+                        int yAbs = coords[1];
+                        b.setCoords(new int[]{xAbs, yAbs});
+                    }
                 }
             }     
             case "s"->{
-                for(Bloque b : piezaActual.getBloques()){
-                    int[] coords = b.getCoords();
-                    int xAbs = coords[0];
-                    int yAbs = coords[1] + 1;
-                    b.setCoords(new int[]{xAbs, yAbs});
+                if(t.puedeMover(piezaActual, 0, 1) == true){
+                    for(Bloque b : piezaActual.getBloques()){
+                        int[] coords = b.getCoords();
+                        int xAbs = coords[0];
+                        int yAbs = coords[1] + 1;
+                        b.setCoords(new int[]{xAbs, yAbs});
+                    }
                 }
             }     
         }
@@ -100,57 +100,83 @@ public class Juego{
 
     public void rotarPieza(){ //setea el tercer bloque como el eje, le resta el bloque a mover, cambia el signo
     // de y y luego le suma el eje invertido (y suma con ejeX y x suma con ejeY), luego los pone al orden original
-        for(Bloque b : piezaActual.getBloques()){
-                int[] coordsEje = piezaActual.getBloques()[3].getCoords();
-                int ejeX = coordsEje[0];
-                int ejeY = coordsEje[1];
-                if(b != piezaActual.getBloques()[3]){
-                    int[] coords = b.getCoords();
-                    int xAbs = coords[0];
-                    int yAbs = coords[1];
+        
+        Bloque[] bloques = piezaActual.getBloques();
+        int[] coordsEje = bloques[3].getCoords();
+        int ejeX = coordsEje[0];
+        int ejeY = coordsEje[1];
+        int[][] nuevasCoords = new int[bloques.length][2];
 
-                    int xxAbs = ejeX - xAbs;
-                    int yyAbs = ejeY - yAbs;
+        for(int i = 0; i < bloques.length; i++){
+            //calculamos las coords sin aplicar los cambios para manejar errores posteriormente
+            Bloque b = bloques[i];
 
-                    int yyyAbs = Math.negateExact(yyAbs);
+            if(i == 3){
+                nuevasCoords[i][0] = ejeX;
+                nuevasCoords[i][1] = ejeY;
+            } else {
+                int[] coords = b.getCoords();
+                int xAbs = coords[0];
+                int yAbs = coords[1];
 
-                    int xFinal = yyyAbs + ejeX;
-                    int yFinal = xxAbs + ejeY;
+                int xxAbs = ejeX - xAbs;
+                int yyAbs = ejeY - yAbs;
 
-                    b.setCoords(new int[]{xFinal, yFinal});
-                }
+                int yyyAbs = Math.negateExact(yyAbs);
+
+                int xFinal = yyyAbs + ejeX;
+                int yFinal = xxAbs + ejeY;
+
+                nuevasCoords[i][0] = xFinal;
+                nuevasCoords[i][1] = yFinal;
+            }
         }
+        for (int i = 0; i < nuevasCoords.length; i++) {
+            int x = nuevasCoords[i][0];
+            int y = nuevasCoords[i][1];
+
+            // fuera de límites entonces cancelamos rotación
+            if (x < 0 || x >= t.getAncho() || y < 0 || y >= t.getAlto()) {
+                return; // no rota
+            }
+
+            // choca contra un bloque fijo del tablero entonces cancelamos rotación
+            if (t.getCeldas()[y][x] == 1) {
+                return; // no rota
+            }
+        }
+
+        // todo es valido entonces ahora si rota
+        for (int i = 0; i < bloques.length; i++) {
+            bloques[i].setCoords(new int[]{ nuevasCoords[i][0], nuevasCoords[i][1] });
+        }
+        
     }
 
     public void gravedad(){
-        for(Bloque b : piezaActual.getBloques()){
-            int[] coords = b.getCoords();
-            int xAbs = coords[0];
-            int yAbs = coords[1] + 1;
-            b.setCoords(new int[]{xAbs, yAbs});
+        if (t.puedeMover(piezaActual, 0, 1) == true){
+            for(Bloque b : piezaActual.getBloques()){
+                int[] coords = b.getCoords();
+                int xAbs = coords[0];
+                int yAbs = coords[1] + 1;
+                b.setCoords(new int[]{xAbs, yAbs});
+            }
         }
     }
 
     public boolean tocoSuelo(){ 
-        for(Bloque b : piezaActual.getBloques()){
-            int[] coords = b.getCoords();
-            int xAbs = coords[0];
-            int yAbs = coords[1];
-            if(yAbs == 19 || t.getCeldas()[yAbs + 1][xAbs] == 1){
-                return true;
-            }
-        }
-        return false;
+        return !t.puedeMover(piezaActual, 0, 1);
     }
 
    
-    public boolean bucleJuego(){
+    public void bucleJuego(){
         boolean gameOver = false;
         try{
             t.inicializar();
             inicializarPieza();
             generarNuevaPieza();
-            while(!gameOver){
+            t.hayGameOver(piezaActual);
+            while(t.hayGameOver(piezaActual) == false){
                 t.imprimir(piezaActual);
                 String wasdUser = teclaUsuario();
                 usuarioToco(wasdUser);
@@ -165,13 +191,16 @@ public class Juego{
                 if(tocoSuelo() == true){
                     t.fijarPieza(piezaActual);
                     inicializarPieza();
-                    generarNuevaPieza();  
+                    generarNuevaPieza();
+                    t.hayGameOver(piezaActual);  
                 }
                 t.limpiarLineas(t.getAlto() - 1);
             }
+            System.out.println("Game Over");
+            sc.nextLine();
+            
         } catch(Exception e){
             System.out.println(e.getMessage());
         }
-        return false;
     }
 }

@@ -101,7 +101,7 @@ public class Pieza{
         }
     }
 
-    public Bloque[] generarBloques(){
+    public Bloque[] generarBloques(int[][] forma){
         if (this.forma == null) {
             // por seguridad, genera la forma si aún no está
             generarForma();
