@@ -1,6 +1,6 @@
 public class Puntaje{
     private int puntajeTotal;
-    private String colorDominante;
+    private String ultimoColorDominante;
     private int combo;
     private String raizColor;
     private int raizFrecuencia;
@@ -8,39 +8,128 @@ public class Puntaje{
     private Puntaje arbolIzquierdo;
     private Puntaje arbolDerecho;
     
-    public puntaje(){
+    public Puntaje(){
         this.puntajeTotal = 0;
-        this.raiz = null;
         this.combo = 0;
-        this.colorDominante = null;
-        this.raizcolor = null;
+        this.ultimoColorDominante = null;
+        this.raizColor = null;
         this.raizFrecuencia = 0;
         this.raizAltura = 0;
         this.arbolIzquierdo = null;
         this.arbolDerecho = null;
     }
-    public void agregarColor(String color)
+    public void agregarColor(String color){
         if (raizColor == null){
             raizColor = color;
             raizFrecuencia = 1;
             raizAltura = 1;
             return;
         }
+        int comparacion = color.compareTo(raizColor);
+        if (comparacion == 0){
+            raizFrecuencia++;
+        }
+        else if (comparacion < 0){
+            if (arbolIzquierdo == null){
+                arbolIzquierdo = new Puntaje();
+            }
+            arbolIzquierdo.agregarColor(color);
+        }
+        else{
+            if (arbolDerecho == null){
+                arbolDerecho = new Puntaje();
+            }
+            arbolDerecho.agregarColor(color);
+        }
+    }
+
     public int buscarFrecuencia(String color){
         if (raizColor == null){
             return 0;
         }
+        int comparacion = color.compareTo(raizColor);
+        if (comparacion == 0){
+            return raizFrecuencia;
+        }
+        else if (comparacion < 0){
+            if (arbolIzquierdo != null){
+                return arbolIzquierdo.buscarFrecuencia(color);
+            }
+        }
+        else{
+            if (arbolDerecho != null){
+                return arbolDerecho.buscarFrecuencia(color);
+            }
+        }
+        return 0;
     }
-    public int calcularPuntajeBase(String color){
+    private void actualizarAltura(){
+        int alturaIzq;
+        if (arbolIzquierdo == null){
+            alturaIzq = 0;
+        }
+        else{
+            alturaIzq = arbolIzquierdo.raizAltura;
+        }
+        int alturaDer;
+        if (arbolDerecho == null){
+            alturaDer = 0;
+        }
+        else{
+            alturaDer = arbolDerecho.raizAltura;
+        }
+        int mayorAltura;
+        if (alturaIzq > alturaDer){
+            mayorAltura = alturaIzq;
+        }
+        else{
+            mayorAltura = alturaDer;
+        }
+        raizAltura = 1 + mayorAltura;
+    }
+
+    private int calcularPuntajeBase(String color){
         int frecuencia = buscarFrecuencia(color);
+        int puntajeBase = 100 - (frecuencia * 10);
+
+        if (puntajeBase < 10){
+            return 10;
+        }
+        else{
+            return puntajeBase;
+        }//para que si un color aparece muchas veces, el minimo sea 10 y no 0
     }
+    public int procesarLineaLimpia(String colorDominante, int numeroLineas){
+        agregarColor(colorDominante);
+        int puntajeBase =calcularPuntajeBase(colorDominante) * numeroLineas;
+        if (colorDominante.equals(ultimoColorDominante)){
+            combo++;
+            puntajeBase = puntajeBase * combo;
+        }
+        else{
+            combo = 1;
+            ultimoColorDominante = colorDominante;
+        }
+        if (numeroLineas > 1){
+            puntajeBase += (numeroLineas - 1) * 50;
+        } //este es el bonus que se da por hacer varias lineas
+        puntajeTotal += puntajeBase;
+        return puntajeBase;
+    }
+
     public int LineaVertical(){
         int puntaje = 200; //el bonus que te dan por la linea vertical basicamente
         puntajeTotal += puntaje;
         return puntaje;
     }
+
+    public void reiniciarCombo(){
+        combo = 0;
+        ultimoColorDominante = null;
+    }
+
     public int getFrecuenciaColor(String color){
-        return buscarFrecuencia(color)
+        return buscarFrecuencia(color);
     }
 
     public int getPuntajeTotal(){
