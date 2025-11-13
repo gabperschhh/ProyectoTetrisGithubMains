@@ -1,13 +1,13 @@
 public class Tablero {
     private int alto;
     private int ancho;
-    private int[][] celdas;
+    private Bloque[][] celdas;
     private boolean[][] bloqueFijo;
 
     public Tablero(int alto, int ancho) {
         this.alto = alto;
         this.ancho = ancho;
-        this.celdas = new int[alto][ancho];
+        this.celdas = new Bloque[alto][ancho];
         this.bloqueFijo = new boolean[alto][ancho];
     }
 
@@ -19,7 +19,7 @@ public class Tablero {
         return ancho;
     }
 
-    public int[][] getCeldas(){
+    public Bloque[][] getCeldas(){
         return celdas;
     }
 
@@ -30,7 +30,7 @@ public class Tablero {
     public void inicializar() {
         for (int i = 0; i < alto; i++) {
             for (int j = 0; j < ancho; j++) {
-                celdas[i][j] = 0;
+                celdas[i][j] = null;
                 bloqueFijo[i][j] = false;
             }
         }
@@ -54,8 +54,9 @@ public class Tablero {
 
                 if(esBloqueDePieza){
                     System.out.print("X | ");
-                } else {
-                    System.out.print(celdas[i][j] + " | ");
+                } else if(celdas[i][j] == null) {
+                    
+                    System.out.print("0 | ");
                 }
                 
             }
@@ -69,36 +70,39 @@ public class Tablero {
             int x = c[0];
             int y = c[1];
 
-            celdas[y][x] = 1; 
+            celdas[y][x] = b; 
             bloqueFijo[y][x] = true;
         }   
     }
 
     public boolean puedeMover(Pieza pieza, int dx, int dy) {
-    for (Bloque b : pieza.getBloques()) {
-        int[] coords = b.getCoords();
-        int xA = coords[0];
-        int yA = coords[1];
-
-        int xN = xA + dx;
-        int yN = yA + dy;
-
-
-        if (xN < 0 || xN >= ancho) {
-            return false;
-        }else if (yN < 0 || yN >= alto) {
-            return false;
-        }else if (celdas[yN][xN] == 1) {
+        if(pieza == null){
             return false;
         }
-    }
+        for (Bloque b : pieza.getBloques()) {
+            int[] coords = b.getCoords();
+            int xA = coords[0];
+            int yA = coords[1];
+
+            int xN = xA + dx;
+            int yN = yA + dy;
+
+
+            if (xN < 0 || xN >= ancho) {
+                return false;
+            }else if (yN < 0 || yN >= alto) {
+                return false;
+            }else if (celdas[yN][xN] != null) {
+                return false;
+            }
+        }
 
     return true;
     }
 
     public boolean filaLlena(int fila){
         for(int i = 0; i < ancho; i++){
-            if(celdas[fila][i] == 0){
+            if(celdas[fila][i] == null){
                 return false;
             } 
         }
@@ -107,7 +111,7 @@ public class Tablero {
 
     public void eliminarFila(int fila){
         for(int i = 0; i < ancho; i++){
-            celdas[fila][i] = 0;
+            celdas[fila][i] = null;
         }
     }
 
@@ -119,7 +123,7 @@ public class Tablero {
         }
 
         for (int c = 0; c < ancho; c++) {
-        celdas[0][c] = 0;
+        celdas[0][c] = null;
         }
 
     }
@@ -149,7 +153,7 @@ public class Tablero {
             int coords[] = b.getCoords();
             int x = coords[0];
             int y = coords[1];
-            if(celdas[y][x] == 1){
+            if(celdas[y][x] != null){
                 return true;
             }
         }

@@ -141,7 +141,7 @@ public class Juego{
             }
 
             // choca contra un bloque fijo del tablero entonces cancelamos rotación
-            if (t.getCeldas()[y][x] == 1) {
+            if (t.getCeldas()[y][x] != null) {
                 return; // no rota
             }
         }
@@ -194,7 +194,7 @@ public class Juego{
                     generarNuevaPieza();
                     t.hayGameOver(piezaActual);  
                 }
-                t.limpiarLineas(t.getAlto() - 1);
+                t.limpiarLineas(t.getAlto());
             }
             System.out.println("Game Over");
             sc.nextLine();
