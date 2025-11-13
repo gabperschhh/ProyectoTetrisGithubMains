@@ -2,6 +2,7 @@ import java.util.Scanner;
 public class Juego{
     Scanner sc = new Scanner(System.in);
     Tablero t = new Tablero(20, 10); 
+    Puntaje puntaje = new Puntaje();
 
     public static void limpiarPantalla() { 
         try {
@@ -178,6 +179,8 @@ public class Juego{
             t.hayGameOver(piezaActual);
             while(t.hayGameOver(piezaActual) == false){
                 t.imprimir(piezaActual);
+                System.out.println("Puntuacion: " + puntaje.getPuntajeTotal());
+                System.out.println("Combo: x" + puntaje.getCombo());
                 String wasdUser = teclaUsuario();
                 usuarioToco(wasdUser);
                 if(usuarioToco(wasdUser) == true){
@@ -194,9 +197,16 @@ public class Juego{
                     generarNuevaPieza();
                     t.hayGameOver(piezaActual);  
                 }
-                t.limpiarLineas(t.getAlto());
+                t.limpiarLineas(t.getAlto() - 1);
+                int lineasLimpias = t.limpiarLineas(t.getAlto() - 1);
+                if (lineasLimpias > 0){
+                    String colorPieza = piezaActual.getBloques()[0].getColor();
+                    int puntosGanados = puntaje.procesarLineaLimpia(colorPieza, lineasLimpias);
+                    System.out.println(puntosGanados + "puntos");
+                }
             }
             System.out.println("Game Over");
+            System.out.println("Puntuacion final: " + puntaje.getPuntajeTotal());
             sc.nextLine();
             
         } catch(Exception e){

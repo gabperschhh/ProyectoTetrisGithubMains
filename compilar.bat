@@ -9,6 +9,6 @@ if %errorlevel% neq 0 (
 )
 
 echo Ejecutando programa...
-java Main
+java Pantalla
 
 pause
