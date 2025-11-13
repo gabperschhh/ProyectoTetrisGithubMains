@@ -41,6 +41,8 @@ public class Puntaje{
             }
             arbolDerecho.agregarColor(color);
         }
+        actualizarAltura();
+        Balancear();
     }
 
     public int buscarFrecuencia(String color){
@@ -86,6 +88,75 @@ public class Puntaje{
             mayorAltura = alturaDer;
         }
         raizAltura = 1 + mayorAltura;
+    }
+    private int getFactorBalance(){
+        int alturaIzq;
+        if (arbolIzquierdo == null){
+            alturaIzq = 0;
+        }
+        else{
+            alturaIzq = arbolIzquierdo.raizAltura;
+        }
+        int alturaDer;
+        if (arbolDerecho == null){
+            alturaDer = 0;
+        }
+        else{
+            alturaDer = arbolDerecho.raizAltura;
+        }
+        return alturaIzq - alturaDer;
+    }
+
+    private void Balancear(){
+        int balance = getFactorBalance();
+        if (balance > 1){
+            if (arbolIzquierdo != null && arbolIzquierdo.getFactorBalance() >= 0){
+                rotarDerecha();
+            }
+        }
+        if (balance > 1){
+            if (arbolIzquierdo != null && arbolIzquierdo.getFactorBalance() < 0){
+                arbolIzquierdo.rotarIzquierda();
+                rotarDerecha();
+            }
+        }
+        if (balance < -1){
+            if (arbolDerecho != null && arbolDerecho.getFactorBalance() <= 0){
+                rotarIzquierda();
+            }
+        }
+        if (balance < -1){
+            if (arbolDerecho != null && arbolDerecho.getFactorBalance() > 0){
+                arbolDerecho.rotarDerecha();
+                rotarIzquierda();
+            }
+        }
+    }
+    private void rotarDerecha(){
+        Puntaje nuevaRaiz = arbolIzquierdo;
+        Puntaje temp = nuevaRaiz.arbolDerecho;
+        nuevaRaiz.arbolDerecho = this;
+        this.arbolIzquierdo = temp;
+        this.actualizarAltura();
+        nuevaRaiz.actualizarAltura();
+        copiarDatos(nuevaRaiz);
+    }
+
+    private void rotarIzquierda(){
+        Puntaje nuevaRaiz = arbolDerecho;
+        Puntaje temp = nuevaRaiz.arbolIzquierdo;
+        nuevaRaiz.arbolIzquierdo = this;
+        this.arbolDerecho = temp;
+        this.actualizarAltura();
+        nuevaRaiz.actualizarAltura();
+        copiarDatos(nuevaRaiz);
+    }
+    private void copiarDatos(Puntaje otro){
+        this.raizColor = otro.raizColor;
+        this.raizFrecuencia = otro.raizFrecuencia;
+        this.raizAltura = otro.raizAltura;
+        this.arbolIzquierdo = otro.arbolIzquierdo;
+        this.arbolDerecho = otro.arbolDerecho;
     }
 
     private int calcularPuntajeBase(String color){
