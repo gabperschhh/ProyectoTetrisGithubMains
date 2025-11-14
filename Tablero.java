@@ -100,6 +100,19 @@ public class Tablero {
     return true;
     }
 
+    public boolean tocoSuelo(Bloque bloque){
+         if (bloque == null) {
+            return false;
+        }
+        int[] coords = bloque.getCoords();
+        int coordX = coords[0];
+        int coordY = coords[1];
+        if(coordY == 19 || celdas[coordY + 1][coordX] != null){
+            return true;
+        }
+        return false;
+    }
+
     public boolean filaLlena(int fila){
         for(int i = 0; i < ancho; i++){
             if(celdas[fila][i] == null){
@@ -115,17 +128,25 @@ public class Tablero {
         }
     }
 
-    public void bajarFilasDesde(int fila){
-        for(int f = fila; f > 0; f--){
-            for(int j = 0; j < ancho; j ++){
-                celdas[f][j] = celdas[f - 1][j];
+    public void bajarBloques(int fila){
+        for (int x = 0; x < ancho; x++) {
+            for (int y = alto - 2; y >= 0; y--) {     // de abajo hacia arriba
+                if (celdas[y][x] != null) {
+                    int nY = y;
+                    while (nY + 1 < alto && celdas[nY + 1][x] == null) {
+                        nY++;
+                    }
+                    if (nY != y) {
+                        celdas[nY][x] = celdas[y][x];
+                        celdas[y][x] = null;
+
+                        int[] coords = celdas[nY][x].getCoords();
+                        int[] newCoords = new int[]{coords[0], nY};
+                        celdas[nY][x].setCoords(newCoords);
+                    }
+                }
             }
         }
-
-        for (int c = 0; c < ancho; c++) {
-        celdas[0][c] = null;
-        }
-
     }
 
     public int limpiarLineas(int fila) {
@@ -137,7 +158,7 @@ public class Tablero {
 
     if (filaLlena(fila)) {
         eliminarFila(fila);
-        bajarFilasDesde(fila);
+        bajarBloques(fila);
         // vuelvo a revisar la misma fila, porque ahora tiene contenido nuevo (por ahora no funciona porq no caen xd)
         puntos = 1 + limpiarLineas(fila);
     } else {
