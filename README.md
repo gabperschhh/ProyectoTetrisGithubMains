@@ -6,4 +6,6 @@ Hay dos opciones para compilar, usando el grafico que usa Java Swing, donde se u
 Otro tema es la caída de bloques, tuvimos varias dudas de si habia que bajar solamente la fila o hacer que los bloques caigan del todo, ya que se piden combos y justamente esta segunda opción favorece a que se de eso, SIN EMBARGO, ambos metodos están en el código, por si acaso xd
 
 Gracias por leer <3
+
+
 -Gabriel Pérez C4I384
