@@ -149,15 +149,12 @@ public class Tablero {
     }
 
     public boolean hayGameOver(Pieza pieza){
-        for (Bloque b : pieza.getBloques()) {
-            int coords[] = b.getCoords();
-            int x = coords[0];
-            int y = coords[1];
-            if(celdas[y][x] != null){
-                return true;
-            }
+        for (int x = 0; x < ancho; x++) {
+        if (celdas[0][x] != null) {
+            return true;
         }
+    }
         return false;
     }
-
 }
+

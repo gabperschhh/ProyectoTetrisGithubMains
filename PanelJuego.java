@@ -1,6 +1,9 @@
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,13 +22,19 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
     Color customPurple = new Color(82, 14, 125);
 
     private final int pixelCelda = 30;
+    private Puntaje puntaje;
+    private boolean gameOver = false;
 
     public PanelJuego(){
         t = new Tablero(20,10);
 
+        puntaje = new Puntaje();
+
         generador = new Pieza(null, null);
+
         
-        setPreferredSize(new Dimension(t.getAncho() * pixelCelda, t.getAlto() * pixelCelda));
+        
+        setPreferredSize(new Dimension(t.getAlto() * pixelCelda, t.getAlto() * pixelCelda));
         setBackground(Color.BLACK);
 
         setFocusable(true);
@@ -36,6 +45,7 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
 
         inicializarPieza();
         generarNuevaPieza();
+
 
     }
 
@@ -165,16 +175,54 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
         
     }
 
+    public String[] menu(String direccion){
+        int[] opciones = {0 , 1};
+        int indice = opciones[0];
+        if(direccion.equals("up")){
+            indice = opciones[0];
+            String texto1 = "- Play Again";
+            String texto2 = "Exit";
+            return new String[]{texto1, texto2};
+        } else if (direccion.equals("down")){
+            indice = opciones[1];
+            String texto1 = "Play Again";
+            String texto2 = "- Exit";
+            return new String[]{texto1, texto2};
+        }
+        return null;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
+        if (gameOver) {
+            return; // por si acaso se dispara algo
+        }
+
         gravedad();
         if (tocoSuelo()) {
             t.fijarPieza(piezaActual);
-            t.limpiarLineas(t.getAlto() - 1);
+            int lineasLimpias = t.limpiarLineas(t.getAlto() - 1);
+
+            if (lineasLimpias > 0) {
+                // uso el color de la pieza actual como dominante
+                String colorPieza = piezaActual.getBloques()[0].getColor();
+                int puntosGanados = puntaje.procesarLineaLimpia(colorPieza, lineasLimpias);
+                System.out.println("Ganaste " + puntosGanados + " puntos. Total: " + puntaje.getPuntajeTotal());
+            }
+            
+            if (t.hayGameOver(piezaActual)) {
+            gameOver = true;
+            timer.stop();     // detiene la caída automática
+            }
+            
             inicializarPieza();
             generarNuevaPieza();
         }
-        repaint(); // redibuja el panel
+        repaint();
+        if(t.hayGameOver(piezaActual) == true){
+            System.out.println("Game Over");
+        }
+        repaint();
     }
 
     @Override
@@ -182,6 +230,14 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
         super.paintComponent(g);
 
         Bloque[][] celdas = t.getCeldas();
+        t.hayGameOver(piezaActual);
+
+        int tableroAnchoPx = t.getAncho() * pixelCelda; 
+        int tableroAltoPx  = t.getAlto() * pixelCelda;  
+
+   
+        int offsetX = (getWidth()  - tableroAnchoPx) / 2;
+        int offsetY = (getHeight() - tableroAltoPx)  / 2;
 
         // dibujar celdas fijas
         for (int i = 0; i < t.getAlto(); i++) {
@@ -189,7 +245,6 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
                 if (celdas[i][j] != null) {
                     
                     String color = celdas[i][j].getColor();
-
                     switch (color) {
                     case "azul" ->{
                         g.setColor(Color.BLUE);
@@ -215,25 +270,19 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
                         g.setColor(Color.WHITE);
                     }
                 }
-                    
-                    
-
-                    g.fillRect(j * pixelCelda, i * pixelCelda, pixelCelda, pixelCelda);
+                    g.fillRect(j * pixelCelda + offsetX, i * pixelCelda + offsetY, pixelCelda, pixelCelda);
                 }
                 g.setColor(Color.DARK_GRAY);
-                g.drawRect(j * pixelCelda, i * pixelCelda, pixelCelda, pixelCelda);
+                g.drawRect(j * pixelCelda + offsetX, i * pixelCelda + offsetY, pixelCelda, pixelCelda);
             }
         }
-
         // dibujar pieza actual
         if (piezaActual != null) {
             for (Bloque b : piezaActual.getBloques()) {
                 int[] coords = b.getCoords();
                 int x = coords[0];
                 int y = coords[1];
-
                 String color = b.getColor();
-
                 switch (color) {
                     case "azul" ->{
                         g.setColor(Color.BLUE);
@@ -257,14 +306,54 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
                         g.setColor(customPurple);
                     }
                 }
-
-
-
-                //g.setColor(Color.CYAN); // si quieres, mapea b.getColor()
-                g.fillRect(x * pixelCelda, y * pixelCelda, pixelCelda, pixelCelda);
+                g.fillRect(x * pixelCelda + offsetX, y * pixelCelda + offsetY, pixelCelda, pixelCelda);
                 g.setColor(Color.BLACK);
-                g.drawRect(x * pixelCelda, y * pixelCelda, pixelCelda, pixelCelda);
+                g.drawRect(x * pixelCelda + offsetX, y * pixelCelda + offsetY, pixelCelda, pixelCelda);
+                g.setColor(Color.WHITE);
+                g.drawString("Puntaje: " + puntaje.getPuntajeTotal(), 10, 20);
+                g.drawString("Combo: x" + puntaje.getCombo(), 10, 40);
             }
+        }
+
+        if (gameOver) {
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            // Fondo semi-transparente
+            g2.setColor(new Color(0, 0, 0, 150));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            // Texto centrado
+            String texto = "GAME OVER";
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 40f));
+            FontMetrics fm = g2.getFontMetrics();
+            int textWidth = fm.stringWidth(texto);
+            int textHeight = fm.getAscent();
+
+            int x = (getWidth() - textWidth) / 2;
+            int y = (getHeight() + textHeight) / 2;
+
+            g2.drawString(texto, x, y);
+
+            String texto1 = menu("up")[0];
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+            fm = g2.getFontMetrics();
+            textWidth = fm.stringWidth(texto);
+            textHeight = fm.getAscent();
+
+            g2.drawString(texto1, x, y + 60);
+
+            String texto2 = menu("up")[1];
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+            fm = g2.getFontMetrics();
+            textWidth = fm.stringWidth(texto);
+            textHeight = fm.getAscent();
+
+            g2.drawString(texto2, x, y + 120);
+
+            g2.dispose();
         }
     }
 
@@ -279,8 +368,10 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
             moverPieza("d");
         } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
             moverPieza("s");
+            menu("down");
         } else if (code == KeyEvent.VK_R || code == KeyEvent.VK_UP) {
             rotarPieza();
+            menu("up");
         }
 
         repaint();

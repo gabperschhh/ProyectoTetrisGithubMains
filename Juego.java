@@ -179,7 +179,7 @@ public class Juego{
             t.hayGameOver(piezaActual);
             while(t.hayGameOver(piezaActual) == false){
                 t.imprimir(piezaActual);
-                System.out.println("Puntuacion: " + puntaje.getPuntajeTotal());
+                System.out.println("Score: " + puntaje.getPuntajeTotal());
                 System.out.println("Combo: x" + puntaje.getCombo());
                 String wasdUser = teclaUsuario();
                 usuarioToco(wasdUser);
