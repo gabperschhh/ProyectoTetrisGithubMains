@@ -245,6 +245,19 @@ public class Tablero {
         }
     }
 
+    /* public void bajarFilasDesde(int fila){
+        for(int f = fila; f > 0; f--){
+            for(int j = 0; j < ancho; j ++){
+                celdas[f][j] = celdas[f - 1][j];
+            }
+        }
+
+        for (int c = 0; c < ancho; c++) {
+            celdas[0][c] = null;
+        }
+
+    } */
+
     public int limpiarLineas(int fila) {
     if (fila < 0) {
         return 0; // caso base, ya no hay filas que revisar
