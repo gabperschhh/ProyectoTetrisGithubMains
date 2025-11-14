@@ -23,7 +23,8 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
 
     private final int pixelCelda = 30;
     private Puntaje puntaje;
-    private boolean gameOver = false;
+    private int opcionMenu = 0;
+    private int faseJuego = 1;
 
     public PanelJuego(){
         t = new Tablero(20,10);
@@ -192,16 +193,37 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
         return null;
     }
 
+    public void reiniciarJuego() {
+        //reinicia todo
+        faseJuego = 2;
+
+        puntaje = new Puntaje();
+
+        t.inicializar();   // limpia celdas
+
+        piezaActual = inicializarPieza();
+
+        timer.restart();
+
+        repaint();
+    }
+
+    public void inicioJuego(){
+        faseJuego = 2;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (gameOver) {
-            return; // por si acaso se dispara algo
+
+        if (faseJuego != 2) {
+            return; 
         }
 
         gravedad();
         if (tocoSuelo()) {
             t.fijarPieza(piezaActual);
             int lineasLimpias = t.limpiarLineas(t.getAlto() - 1);
+            int puntosVerticales = t.limpiarLineas4(null);
 
             if (lineasLimpias > 0) {
                 // uso el color de la pieza actual como dominante
@@ -211,17 +233,14 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
             }
             
             if (t.hayGameOver(piezaActual)) {
-            gameOver = true;
+            faseJuego = 3;
             timer.stop();     // detiene la caída automática
             }
             
             inicializarPieza();
             generarNuevaPieza();
         }
-        repaint();
-        if(t.hayGameOver(piezaActual) == true){
-            System.out.println("Game Over");
-        }
+
         repaint();
     }
 
@@ -229,94 +248,155 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        Bloque[][] celdas = t.getCeldas();
-        t.hayGameOver(piezaActual);
+        Graphics2D g2 = (Graphics2D) g.create();
 
+        if(faseJuego == 1){
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
+            String textoTitulo = "TETRIS 1.0";
+            g2.setColor(Color.MAGENTA);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 100f));
+
+            FontMetrics fmTitulo = g2.getFontMetrics();
+            int textWidthTitulo = fmTitulo.stringWidth(textoTitulo);
+            int textHeightTitulo = fmTitulo.getAscent();
+
+            int xTitulo = (getWidth() - textWidthTitulo) / 2;
+            int yTitulo = (getHeight() + textHeightTitulo) / 2;
+
+            g2.drawString(textoTitulo, xTitulo, yTitulo - 120);
+
+            String textoTitulo1 = "CONTROLES:";
+            g2.setColor(Color.CYAN);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+
+            g2.drawString(textoTitulo1, xTitulo, yTitulo - 20);
+
+            String textoTitulo2 = "W / Flecha arr. -> Rotar";
+            g2.setColor(Color.BLUE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20f));
+
+            g2.drawString(textoTitulo2, xTitulo, yTitulo);
+
+            String textoTitulo3 = "A / Flecha izq. -> Mover izquierda";
+            g2.setColor(Color.GREEN);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20f));
+
+            g2.drawString(textoTitulo3, xTitulo, yTitulo + 20);
+
+            String textoTitulo4 = "S / Flecha aba. -> Bajar más rapido";
+            g2.setColor(Color.RED);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20f));
+
+            g2.drawString(textoTitulo4, xTitulo, yTitulo + 40);
+
+            String textoTitulo5 = "D / Flecha der. -> Mover derecha";
+            g2.setColor(Color.YELLOW);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 20f));
+
+            g2.drawString(textoTitulo5, xTitulo, yTitulo + 60);
+
+            String textoTitulo6 = "Presiona enter para iniciar...";
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
+
+            g2.drawString(textoTitulo6, xTitulo, yTitulo + 120);
+
+            String textoStudio = "By: GithubMains Games";
+            g2.setColor(Color.WHITE);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 10f));
+
+            g2.drawString(textoStudio, 10 , getHeight() - 10);
+
+        } 
+
+        Bloque[][] celdas = t.getCeldas();
         int tableroAnchoPx = t.getAncho() * pixelCelda; 
         int tableroAltoPx  = t.getAlto() * pixelCelda;  
 
-   
         int offsetX = (getWidth()  - tableroAnchoPx) / 2;
         int offsetY = (getHeight() - tableroAltoPx)  / 2;
 
-        // dibujar celdas fijas
-        for (int i = 0; i < t.getAlto(); i++) {
-            for (int j = 0; j < t.getAncho(); j++) {
-                if (celdas[i][j] != null) {
-                    
-                    String color = celdas[i][j].getColor();
+        if(faseJuego == 2){
+            // dibujar celdas fijas
+            for (int i = 0; i < t.getAlto(); i++) {
+                for (int j = 0; j < t.getAncho(); j++) {
+                    if (celdas[i][j] != null) {
+                        
+                        String color = celdas[i][j].getColor();
+                        switch (color) {
+                        case "azul" ->{
+                            g.setColor(Color.BLUE);
+                        }
+                        case "rojo" ->{
+                            g.setColor(Color.RED);
+                        }
+                        case "verde" ->{
+                            g.setColor(Color.GREEN);
+                        }
+                        case "naranja" ->{
+                            g.setColor(Color.ORANGE);
+                        }
+                        case "amarillo" ->{
+                            g.setColor(Color.YELLOW);
+                        }
+                        case "rosado" ->{
+                            g.setColor(customPink);
+                        }
+                        case "morado" ->{
+                            g.setColor(customPurple);
+                        } default -> {
+                            g.setColor(Color.WHITE);
+                        }
+                    }
+                        g.fillRect(j * pixelCelda + offsetX, i * pixelCelda + offsetY, pixelCelda, pixelCelda);
+                    }
+                    g.setColor(Color.DARK_GRAY);
+                    g.drawRect(j * pixelCelda + offsetX, i * pixelCelda + offsetY, pixelCelda, pixelCelda);
+                }
+            }
+            // dibujar pieza actual
+            if (piezaActual != null) {
+                for (Bloque b : piezaActual.getBloques()) {
+                    int[] coords = b.getCoords();
+                    int x = coords[0];
+                    int y = coords[1];
+                    String color = b.getColor();
                     switch (color) {
-                    case "azul" ->{
-                        g.setColor(Color.BLUE);
+                        case "azul" ->{
+                            g.setColor(Color.BLUE);
+                        }
+                        case "rojo" ->{
+                            g.setColor(Color.RED);
+                        }
+                        case "verde" ->{
+                            g.setColor(Color.GREEN);
+                        }
+                        case "naranja" ->{
+                            g.setColor(Color.ORANGE);
+                        }
+                        case "amarillo" ->{
+                            g.setColor(Color.YELLOW);
+                        }
+                        case "rosado" ->{
+                            g.setColor(customPink);
+                        }
+                        case "morado" ->{
+                            g.setColor(customPurple);
+                        }
                     }
-                    case "rojo" ->{
-                        g.setColor(Color.RED);
-                    }
-                    case "verde" ->{
-                        g.setColor(Color.GREEN);
-                    }
-                    case "naranja" ->{
-                        g.setColor(Color.ORANGE);
-                    }
-                    case "amarillo" ->{
-                        g.setColor(Color.YELLOW);
-                    }
-                    case "rosado" ->{
-                        g.setColor(customPink);
-                    }
-                    case "morado" ->{
-                        g.setColor(customPurple);
-                    } default -> {
-                        g.setColor(Color.WHITE);
-                    }
+                    g.fillRect(x * pixelCelda + offsetX, y * pixelCelda + offsetY, pixelCelda, pixelCelda);
+                    g.setColor(Color.BLACK);
+                    g.drawRect(x * pixelCelda + offsetX, y * pixelCelda + offsetY, pixelCelda, pixelCelda);
+                    g.setColor(Color.WHITE);
+                    g.drawString("Puntaje: " + puntaje.getPuntajeTotal(), 10, 20);
+                    g.drawString("Combo: x" + puntaje.getCombo(), 10, 40);
                 }
-                    g.fillRect(j * pixelCelda + offsetX, i * pixelCelda + offsetY, pixelCelda, pixelCelda);
-                }
-                g.setColor(Color.DARK_GRAY);
-                g.drawRect(j * pixelCelda + offsetX, i * pixelCelda + offsetY, pixelCelda, pixelCelda);
             }
         }
-        // dibujar pieza actual
-        if (piezaActual != null) {
-            for (Bloque b : piezaActual.getBloques()) {
-                int[] coords = b.getCoords();
-                int x = coords[0];
-                int y = coords[1];
-                String color = b.getColor();
-                switch (color) {
-                    case "azul" ->{
-                        g.setColor(Color.BLUE);
-                    }
-                    case "rojo" ->{
-                        g.setColor(Color.RED);
-                    }
-                    case "verde" ->{
-                        g.setColor(Color.GREEN);
-                    }
-                    case "naranja" ->{
-                        g.setColor(Color.ORANGE);
-                    }
-                    case "amarillo" ->{
-                        g.setColor(Color.YELLOW);
-                    }
-                    case "rosado" ->{
-                        g.setColor(customPink);
-                    }
-                    case "morado" ->{
-                        g.setColor(customPurple);
-                    }
-                }
-                g.fillRect(x * pixelCelda + offsetX, y * pixelCelda + offsetY, pixelCelda, pixelCelda);
-                g.setColor(Color.BLACK);
-                g.drawRect(x * pixelCelda + offsetX, y * pixelCelda + offsetY, pixelCelda, pixelCelda);
-                g.setColor(Color.WHITE);
-                g.drawString("Puntaje: " + puntaje.getPuntajeTotal(), 10, 20);
-                g.drawString("Combo: x" + puntaje.getCombo(), 10, 40);
-            }
-        }
-
-        if (gameOver) {
-            Graphics2D g2 = (Graphics2D) g.create();
+        if (faseJuego == 3) {
+            //Graphics2D g2 = (Graphics2D) g.create();
 
             // Fondo semi-transparente
             g2.setColor(new Color(0, 0, 0, 150));
@@ -335,21 +415,15 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
 
             g2.drawString(texto, x, y);
 
-            String texto1 = menu("up")[0];
+            String texto1 = (opcionMenu == 0 ? "- Play Again" : "  Play Again");
             g2.setColor(Color.WHITE);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
-            fm = g2.getFontMetrics();
-            textWidth = fm.stringWidth(texto);
-            textHeight = fm.getAscent();
 
             g2.drawString(texto1, x, y + 60);
 
-            String texto2 = menu("up")[1];
+            String texto2 = (opcionMenu == 1 ? "- Exit" : "  Exit");
             g2.setColor(Color.WHITE);
             g2.setFont(g2.getFont().deriveFont(Font.BOLD, 30f));
-            fm = g2.getFontMetrics();
-            textWidth = fm.stringWidth(texto);
-            textHeight = fm.getAscent();
 
             g2.drawString(texto2, x, y + 120);
 
@@ -362,16 +436,36 @@ public class PanelJuego extends JPanel implements ActionListener, KeyListener {
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
 
-        if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
-            moverPieza("a");
-        } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
-            moverPieza("d");
-        } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
-            moverPieza("s");
-            menu("down");
-        } else if (code == KeyEvent.VK_R || code == KeyEvent.VK_UP) {
-            rotarPieza();
-            menu("up");
+        if (faseJuego == 3) {
+            // controlar menú
+            if (code == KeyEvent.VK_UP) {
+                opcionMenu = 0;
+            } else if (code == KeyEvent.VK_DOWN) {
+                opcionMenu = 1;
+            } else if (code == KeyEvent.VK_ENTER) {
+                if (opcionMenu == 0) {
+                    // play again
+                    reiniciarJuego();
+                } else {
+                    // terminar programa
+                    System.exit(0);
+                }
+            }
+        } else if (faseJuego == 2) {
+            // controlar pieza normalmente
+            if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) {
+                moverPieza("a");
+            } else if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) {
+                moverPieza("d");
+            } else if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) {
+                moverPieza("s");
+            } else if (code == KeyEvent.VK_R || code == KeyEvent.VK_UP) {
+                rotarPieza();
+            }
+        } else if (faseJuego == 1){
+            if (code == KeyEvent.VK_ENTER){
+                inicioJuego();
+            }
         }
 
         repaint();

@@ -204,6 +204,7 @@ public class Juego{
                     int puntosGanados = puntaje.procesarLineaLimpia(colorPieza, lineasLimpias);
                     System.out.println(puntosGanados + "puntos");
                 }
+                int puntosVerticales = t.limpiarLineas4(null);
             }
             System.out.println("Game Over");
             System.out.println("Puntuacion final: " + puntaje.getPuntajeTotal());

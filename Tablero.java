@@ -3,6 +3,7 @@ public class Tablero {
     private int ancho;
     private Bloque[][] celdas;
     private boolean[][] bloqueFijo;
+    ConsoleColors c = new ConsoleColors();
 
     public Tablero(int alto, int ancho) {
         this.alto = alto;
@@ -40,11 +41,17 @@ public class Tablero {
         for (int i = 0; i < alto; i++) {
             System.out.print("|");
             for (int j = 0; j < ancho; j++) {
+                String color = null;
+                String colorPieza = null;
                 boolean esBloqueDePieza = false;
+                if(celdas[i][j] != null){
+                    color = celdas[i][j].getColor();
+                }
 
                 if (piezaActual != null) {
                     for (Bloque b : piezaActual.getBloques()) {
                         int[] c = b.getCoords();
+                        colorPieza = b.getColor();
                         if(c[0] == j && c[1] == i){
                             esBloqueDePieza = true;
                             break;
@@ -53,10 +60,55 @@ public class Tablero {
                 }
 
                 if(esBloqueDePieza){
-                    System.out.print("X | ");
+                    switch(colorPieza) {
+                        case "azul" -> {
+                            System.out.print(c.BLUE + "X" + c.RESET + " | ");
+                        }
+                        case "rojo" -> {
+                            System.out.print(c.RED + "X" + c.RESET + " | ");
+                        }
+                        case "naranja" -> {
+                            System.out.print("X | ");
+                        }
+                        case "verde" -> {
+                            System.out.print(c.GREEN + "X" + c.RESET + " | ");
+                        }
+                        case "amarillo" -> {
+                            System.out.print(c.YELLOW + "X" + c.RESET + " | ");
+                        }
+                        case "rosado" -> {
+                            System.out.print(c.CYAN + "X" + c.RESET + " | ");
+                        }
+                        case "morado" -> {
+                            System.out.print(c.PURPLE + "X" + c.RESET + " | ");
+                        }
+                    }
                 } else if(celdas[i][j] == null) {
-                    
                     System.out.print("0 | ");
+                } else if(celdas[i][j] != null){
+                    switch(color) {
+                        case "azul" -> {
+                            System.out.print(c.BLUE + "1" + c.RESET + " | ");
+                        }
+                        case "rojo" -> {
+                            System.out.print(c.RED + "1" + c.RESET + " | ");
+                        }
+                        case "naranja" -> {
+                            System.out.print("1 | ");
+                        }
+                        case "verde" -> {
+                            System.out.print(c.GREEN + "1" + c.RESET + " | ");
+                        }
+                        case "amarillo" -> {
+                            System.out.print(c.YELLOW + "1" + c.RESET + " | ");
+                        }
+                        case "rosado" -> {
+                            System.out.print(c.CYAN + "1" + c.RESET + " | ");
+                        }
+                        case "morado" -> {
+                            System.out.print(c.PURPLE + "1" + c.RESET + " | ");
+                        }
+                    }
                 }
                 
             }
@@ -128,6 +180,50 @@ public class Tablero {
         }
     }
 
+    public void eliminarCuatroFilas(int[] filas) {
+    if (filas == null) {
+        return;
+    }
+
+    for (int x = 0; x < filas.length; x++) {
+        int fila = filas[x];
+        for (int j = 0; j < ancho; j++) {
+            celdas[fila][j] = null;
+        }
+    }
+}
+
+    // devuelve un int[] con las 4 filas (de abajo hacia arriba)
+    // si no hay nada que eliminar, devuelve null
+    public int[] cuatroEnLinea() {
+        for (int x = 0; x < ancho; x++) {
+            for (int y = alto - 1; y >= 3; y--) {
+                if (celdas[y][x] == null) {
+                    continue;
+                }
+
+                String color = celdas[y][x].getColor();
+                boolean sonCuatro = true;
+
+                // revisamos los 3 bloques de arriba de este
+                for (int k = 1; k < 4; k++) {
+                    //si son null o si no se cumple el .equals rompe el ciclo y devuelve null
+                    if (celdas[y - k][x] == null || !celdas[y - k][x].getColor().equals(color)) {
+                        sonCuatro = false;
+                        break;
+                    }
+                }
+
+                if (sonCuatro) {
+                    // devolvemos las filas de abajo hacia arriba
+                    return new int[]{ y, y - 1, y - 2, y - 3 };
+                }
+            }
+        }
+
+        return null;
+    }
+
     public void bajarBloques(int fila){
         for (int x = 0; x < ancho; x++) {
             for (int y = alto - 2; y >= 0; y--) {     // de abajo hacia arriba
@@ -167,6 +263,25 @@ public class Tablero {
     }
 
     return puntos;
+    }
+
+    public int limpiarLineas4(int[] filas) {
+    // si filas es null, buscamos en cuatroEnLinea
+    if (filas == null) {
+        filas = cuatroEnLinea();
+    }
+
+    if (filas == null) {
+        return 0; // caso base
+    }
+
+    int filaBase = filas[0];
+
+    eliminarCuatroFilas(filas);
+
+    bajarBloques(filaBase);
+
+    return 1 + limpiarLineas4(null);
     }
 
     public boolean hayGameOver(Pieza pieza){
