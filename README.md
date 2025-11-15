@@ -9,3 +9,5 @@ Gracias por leer <3
 
 
 -Gabriel Pérez C4I384
+-Benjamin hernández C5F913
+-Julián Barrantes C5D034
