@@ -19,6 +19,11 @@ public class Puntaje{
         this.arbolDerecho = null;
     }
     public void agregarColor(String color){
+        if (color == null) return;
+        if (this == arbolIzquierdo || this == arbolDerecho){
+            System.err.println("Error: dayum");
+            return;
+        }
         if (raizColor == null){
             raizColor = color;
             raizFrecuencia = 1;
@@ -33,13 +38,17 @@ public class Puntaje{
             if (arbolIzquierdo == null){
                 arbolIzquierdo = new Puntaje();
             }
+            if (arbolIzquierdo != this){
             arbolIzquierdo.agregarColor(color);
+            }
         }
         else{
             if (arbolDerecho == null){
                 arbolDerecho = new Puntaje();
             }
+            if(arbolDerecho != this){
             arbolDerecho.agregarColor(color);
+            }
         }
         actualizarAltura();
         Balancear();
@@ -90,6 +99,9 @@ public class Puntaje{
         raizAltura = 1 + mayorAltura;
     }
     private int getFactorBalance(){
+        if (this.raizColor == null){
+            return 0;
+        }
         int alturaIzq;
         if (arbolIzquierdo == null){
             alturaIzq = 0;
@@ -110,53 +122,63 @@ public class Puntaje{
     private void Balancear(){
         int balance = getFactorBalance();
         if (balance > 1){
-            if (arbolIzquierdo != null && arbolIzquierdo.getFactorBalance() >= 0){
-                rotarDerecha();
+            if (arbolIzquierdo != null){
+                 int balanceIzquierdo = arbolIzquierdo.getFactorBalance();
             }
-        }
-        if (balance > 1){
-            if (arbolIzquierdo != null && arbolIzquierdo.getFactorBalance() < 0){
+            else{
                 arbolIzquierdo.rotarIzquierda();
                 rotarDerecha();
             }
         }
         if (balance < -1){
-            if (arbolDerecho != null && arbolDerecho.getFactorBalance() <= 0){
-                rotarIzquierda();
-            }
-        }
-        if (balance < -1){
-            if (arbolDerecho != null && arbolDerecho.getFactorBalance() > 0){
-                arbolDerecho.rotarDerecha();
-                rotarIzquierda();
+            if (arbolDerecho != null){
+                int balanceDerecho = arbolDerecho.getFactorBalance();
+                if (balanceDerecho <= 0){
+                    rotarIzquierda();
+                }
+                else{
+                    arbolDerecho.rotarDerecha();
+                    rotarIzquierda();
+                }
             }
         }
     }
     private void rotarDerecha(){
+        if (arbolIzquierdo == null) return;
         Puntaje nuevaRaiz = arbolIzquierdo;
         Puntaje temp = nuevaRaiz.arbolDerecho;
-        nuevaRaiz.arbolDerecho = this;
-        this.arbolIzquierdo = temp;
+        String tempColor = this.raizColor;
+        int tempFrecuencia = this.raizFrecuencia;
+        this.raizColor = nuevaRaiz.raizColor;
+        this.raizFrecuencia = nuevaRaiz.raizFrecuencia;
+        nuevaRaiz.raizColor = tempColor;
+        nuevaRaiz.raizFrecuencia = tempFrecuencia;
+        this.arbolIzquierdo = nuevaRaiz.arbolIzquierdo;
+        nuevaRaiz.arbolIzquierdo = nuevaRaiz.arbolDerecho;
+        nuevaRaiz.arbolDerecho = this.arbolDerecho;
+        this.arbolDerecho = nuevaRaiz;
+        if (this.arbolIzquierdo != null) this.arbolIzquierdo.actualizarAltura();
+        if (this.arbolDerecho != null) this.arbolDerecho.actualizarAltura();
         this.actualizarAltura();
-        nuevaRaiz.actualizarAltura();
-        copiarDatos(nuevaRaiz);
     }
 
     private void rotarIzquierda(){
+        if (arbolDerecho == null) return;
         Puntaje nuevaRaiz = arbolDerecho;
         Puntaje temp = nuevaRaiz.arbolIzquierdo;
-        nuevaRaiz.arbolIzquierdo = this;
-        this.arbolDerecho = temp;
+        String tempColor = this.raizColor;
+        int tempFrecuencia = this.raizFrecuencia;
+        this.raizColor = nuevaRaiz.raizColor;
+        this.raizFrecuencia = nuevaRaiz.raizFrecuencia;
+        nuevaRaiz.raizColor = tempColor;
+        nuevaRaiz.raizFrecuencia = tempFrecuencia;
+        this.arbolDerecho = nuevaRaiz.arbolDerecho;
+        nuevaRaiz.arbolDerecho = nuevaRaiz.arbolIzquierdo;
+        nuevaRaiz.arbolIzquierdo = this.arbolIzquierdo;
+        this.arbolIzquierdo = nuevaRaiz;
+        if (this.arbolIzquierdo != null) this.arbolIzquierdo.actualizarAltura();
+        if (this.arbolDerecho != null) this.arbolDerecho.actualizarAltura();
         this.actualizarAltura();
-        nuevaRaiz.actualizarAltura();
-        copiarDatos(nuevaRaiz);
-    }
-    private void copiarDatos(Puntaje otro){
-        this.raizColor = otro.raizColor;
-        this.raizFrecuencia = otro.raizFrecuencia;
-        this.raizAltura = otro.raizAltura;
-        this.arbolIzquierdo = otro.arbolIzquierdo;
-        this.arbolDerecho = otro.arbolDerecho;
     }
 
     private int calcularPuntajeBase(String color){
