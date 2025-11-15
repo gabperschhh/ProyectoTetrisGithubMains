@@ -1,3 +1,8 @@
+/**
+*Esta clase establece genera el tablero de juego, maneja las filas y determina el game over
+*@author Benjamín Hernández, Julian Barrantes y Gabriel Pérez
+*@Version 1.0
+*/
 public class Tablero {
     private int alto;
     private int ancho;
@@ -223,7 +228,16 @@ public class Tablero {
 
         return null;
     }
-
+    /**
+    Metodo que hace que bajen los bloques que quedan flotando cuando se completa una linea
+    *@param int x
+    *@param int y
+    *@param bloque[][] celdas
+    *@param int alto
+    *@param int nY
+    *@param int[] coords
+    *@param int[] newCoords
+    */
     public void bajarBloques(int fila){
         for (int x = 0; x < ancho; x++) {
             for (int y = alto - 2; y >= 0; y--) {     // de abajo hacia arriba
@@ -296,7 +310,14 @@ public class Tablero {
 
     return 1 + limpiarLineas4(null);
     }
-
+       /**
+    Metodo que da game over cuando una pieza toca el techo o lo sobrepasa
+    *@param int x
+    *@param int ancho
+    *@param bloque[][] celdas
+    *@return true si las celdas[0][x] no están vacias
+    *@return false en caso contrario
+    */
     public boolean hayGameOver(Pieza pieza){
         for (int x = 0; x < ancho; x++) {
         if (celdas[0][x] != null) {

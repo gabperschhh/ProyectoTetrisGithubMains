@@ -1,3 +1,8 @@
+/**
+*Esta clase establece el color y coordenadas del bloque para la pieza
+*@author Benjamín Hernández, Julian Barrantes y Gabriel Pérez
+*@Version 1.0
+*/
 public class Bloque{
     private int[] coords;
     private String color;

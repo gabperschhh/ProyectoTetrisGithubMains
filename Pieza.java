@@ -1,3 +1,8 @@
+/**
+*Esta clase establece la forma  y genera los bloques de la pieza y crea la forma de la pieza
+*@author Benjamín Hernández, Julian Barrantes y Gabriel Pérez
+*@Version 1.0
+*/
 public class Pieza{
     private Bloque[] bloques;
     private int[][] forma;

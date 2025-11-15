@@ -1,3 +1,8 @@
+/**
+*Genera la puntuación del juego tetris basado en la frecuencia de los colores
+*@author Benjamin Hernández, Julian Barrantes y Gabriel perez
+*@Version 1.0
+*/
 public class Puntaje{
     private int puntajeTotal;
     private String ultimoColorDominante;
@@ -18,6 +23,16 @@ public class Puntaje{
         this.arbolIzquierdo = null;
         this.arbolDerecho = null;
     }
+    /**
+    *pone el Puntaje en un nodo del árbol con ese color, y si ya hay lo compara con el nuevo y si es el mismo sube la frecuencia 
+    *@param String color
+    *@param String raizColor
+    *@param int raizFrecuencia
+    *@param int raizAltura
+    *@param int comparacion
+    *@param Puntaje arbolIzquierdo
+    *@param Puntaje arbolDerecho
+    */
     public void agregarColor(String color){
         if (color == null) return;
         if (this == arbolIzquierdo || this == arbolDerecho){
@@ -53,7 +68,16 @@ public class Puntaje{
         actualizarAltura();
         Balancear();
     }
-
+    /**
+    *Busca el color que tenga más frecuencia, que haya aparecido más 
+    *@param String color 
+    *@param String raizColor
+    *@param int comparacion 
+    *@param int raizFrecuencia 
+    *@param Puntaje arbolIzquierdo
+    *@param Puntaje arbolDerecho
+    *@return 0
+    */
     public int buscarFrecuencia(String color){
         if (raizColor == null){
             return 0;
@@ -74,6 +98,15 @@ public class Puntaje{
         }
         return 0;
     }
+    /**
+    *Es el metodo que actualiza la altura del nodo en el arbol AVL
+    *@param int alturaIzq
+    *@param Puntaje arbolIzquierdo
+    *@param int alturaDer
+    *@param Puntaje arbolDerecho
+    *@param int mayorAltura
+    *@param int raizAltura
+    */
     private void actualizarAltura(){
         int alturaIzq;
         if (arbolIzquierdo == null){
@@ -98,6 +131,7 @@ public class Puntaje{
         }
         raizAltura = 1 + mayorAltura;
     }
+    
     private int getFactorBalance(){
         if (this.raizColor == null){
             return 0;
@@ -180,7 +214,13 @@ public class Puntaje{
         if (this.arbolDerecho != null) this.arbolDerecho.actualizarAltura();
         this.actualizarAltura();
     }
-
+    /**
+    *Calcula el puntaje de cada color en base a su frecuencia 
+    *@param String Color
+    *@param int frecuencia 
+    *@param int puntajeBase
+    *@return puntajeBase
+    */
     private int calcularPuntajeBase(String color){
         int frecuencia = buscarFrecuencia(color);
         int puntajeBase = 100 - (frecuencia * 10);

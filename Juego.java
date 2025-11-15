@@ -1,3 +1,8 @@
+/**
+*Maneja el funcionamiento del juego, con creación de piezas así como su movimiento y rotación, hay limpieza de pantalla
+*@author Benjamin Hernández, Julian Barrantes y Gabriel perez
+*@Version 1.0
+*/
 import java.util.Scanner;
 public class Juego{
     Scanner sc = new Scanner(System.in);
@@ -25,7 +30,11 @@ public class Juego{
     Pieza p = new Pieza(null, null);
     Bloque b = new Bloque(null, null, 0, 0);
 
-
+     /**
+    *Es el metodo que crea la forma de la pieza
+    *@param int[][] forma
+    *@param bloque[] bloques
+    */
     public Pieza inicializarPieza(){
         int[][] forma = p.generarForma();
         Bloque[] bloques = p.generarBloques(forma);
@@ -51,7 +60,15 @@ public class Juego{
         }
         return false;
     }
-
+    /**
+    *Es el metodo que genera las piezas que caen en el tablero
+    *@param int spawnX
+    *@param int spawnY
+    *@param bloque b
+    *@param int xAbs
+    *@param int yAbs
+    *@param int[] coords
+    */
     public void generarNuevaPieza(){
         int spawnX = t.getAncho() / 2;
         int spawnY = 0; //fila superior
@@ -63,7 +80,15 @@ public class Juego{
             b.setCoords(new int[]{xAbs, yAbs});
         }
     } 
-
+       /**
+    Metodo para que se puedan mover las piezas con el teclado wasd
+    *@param String wasdUser
+    *@param int xAbs
+    *@param bloque b
+    *@param int yAbs
+    *@param int nY
+    *@param int[] coords
+    */
     public void moverPieza(String wasdUser){
         switch (wasdUser) {
             case "a"->{
@@ -98,7 +123,25 @@ public class Juego{
             }     
         }
     }
-
+       /**
+    Metodo para rotar la pieza
+    *@param int x
+    *@param int y
+    *@param bloque[] bloques
+    *@param int ejeX
+    *@param int ejeY
+    *@param int[] coordsEje
+    *@param int[][] nuevasCoords
+    *@param int xxAbs
+    *@param int yyAbs
+    *@param int yyyAbs
+    *@param int xFinal
+    *@param int yFinal
+    *@param int x
+    *@param int y
+    *@param int i
+    *@return
+    */
     public void rotarPieza(){ //setea el tercer bloque como el eje, le resta el bloque a mover, cambia el signo
     // de y y luego le suma el eje invertido (y suma con ejeX y x suma con ejeY), luego los pone al orden original
         
@@ -153,7 +196,13 @@ public class Juego{
         }
         
     }
-
+    /**
+    Metodo que aplica la gravedad a las piezas para que caigan    
+    *@param bloque b
+    *@param int xAbs
+    *@param int yAbs
+    *@param int[] coords
+    */
     public void gravedad(){
         if (t.puedeMover(piezaActual, 0, 1) == true){
             for(Bloque b : piezaActual.getBloques()){
@@ -169,7 +218,15 @@ public class Juego{
         return !t.puedeMover(piezaActual, 0, 1);
     }
 
-   
+    /**
+    Este es el metodo principal, el que crea el bucle del juego y el funcionamiento del mismo
+    *@param boolean gameOver
+    *@param String wasdUser
+    *@param int lineasLimpias
+    *@param String colorPieza
+    *@param int puntosGanados
+    *@param int puntosVerticales
+    */
     public void bucleJuego(){
         boolean gameOver = false;
         try{
